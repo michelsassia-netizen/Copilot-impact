@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#0d1b2a">
-<title>Microsoft 365 Copilot — Early Adopter Impact | Sassia Michel</title>
+<title>Copilot Impact — Add &amp; Deploy Tool | Sassia Michel</title>
 <style>
   :root{
     --navy:#0d1b2a; --navy2:#132a41; --steel:#22557a;
@@ -24,6 +23,28 @@
   .cert-badge{display:inline-block;margin-top:10px;background:rgba(201,162,39,.16);border:1px solid var(--gold);border-radius:7px;padding:6px 12px;font-size:11.5px;color:#f0e2b8;line-height:1.4;}
   .cert-badge b{color:#fff;}
   .flag{height:3px;background:linear-gradient(90deg,var(--navy) 0 50%,var(--red) 50% 100%);margin-top:14px;border-radius:2px;max-width:130px;}
+
+  /* ---- PRIVATE TOOLBAR (never appears in deployed output) ---- */
+  .toolbar{background:#1a2b3c;color:#fff;padding:16px 20px;position:sticky;top:0;z-index:100;border-bottom:2px solid var(--gold);}
+  .toolbar-note{font-size:11px;color:#9fb0c0;margin-bottom:10px;letter-spacing:.3px;}
+  .tb-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:8px;padding:10px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-gold{background:var(--gold);color:var(--navy);}
+  .btn-line{background:transparent;color:#cdd8e3;border:1px solid #3a4a5c;}
+  .btn-green{background:var(--green);color:#fff;}
+  .form{background:#12202e;border-radius:10px;padding:14px;margin-top:12px;display:none;}
+  .form.open{display:block;}
+  .form label{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#9fb0c0;margin:9px 0 3px;}
+  .form input,.form select,.form textarea{width:100%;padding:9px 11px;border-radius:7px;border:1px solid #2a3a4c;background:#0d1b2a;color:#fff;font-family:inherit;font-size:13px;}
+  .form textarea{min-height:52px;resize:vertical;}
+  .form-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .form-actions{margin-top:12px;display:flex;gap:8px;}
+  .msg{font-size:12px;color:var(--gold);margin-top:8px;min-height:16px;}
+  .deploy-box{margin-top:12px;display:none;}
+  .deploy-box.open{display:block;}
+  .deploy-box textarea{width:100%;min-height:120px;font-family:monospace;font-size:10px;background:#0d1b2a;color:#8fa;border:1px solid #2a3a4c;border-radius:7px;padding:10px;}
+  .del-btn{background:none;border:none;color:var(--red);font-size:11px;cursor:pointer;font-weight:700;padding:2px 6px;}
+
   .intro{padding:18px 26px 0;font-size:13.5px;color:var(--muted);}
   .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:16px 26px 8px;}
   .stat{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:16px 12px;text-align:center;}
@@ -55,13 +76,13 @@
   .oppo{list-style:none;}
   .oppo li{font-size:13.5px;color:var(--text);padding:7px 0 7px 24px;position:relative;border-bottom:1px solid var(--line2);}
   .oppo li:last-child{border-bottom:none;}
-  .oppo li:before{content:"→";position:absolute;left:0;color:var(--gold);font-weight:700;}
+  .oppo li:before{content:"\2192";position:absolute;left:0;color:var(--gold);font-weight:700;}
   .cat-head{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;padding:18px 26px 2px;color:var(--steel);}
   .cat-head.prod{color:var(--blue);}
   .cat-head.proc{color:var(--green);}
   .cat-head.dev{color:var(--purple);}
   .entries{padding:6px 20px;}
-  .entry{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:9px;padding:14px 16px;margin-bottom:11px;}
+  .entry{background:var(--white);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:9px;padding:14px 16px;margin-bottom:11px;position:relative;}
   .entry.proc{border-left-color:var(--green);}
   .entry.prod{border-left-color:var(--blue);}
   .entry.dev{border-left-color:var(--purple);}
@@ -71,18 +92,21 @@
   .entry-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;}
   .entry-app{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);background:var(--line2);padding:2px 8px;border-radius:4px;}
   .entry-saved{font-size:11px;font-weight:700;color:var(--green);}
+  .entry-note{font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.45;}
   .nextphase{margin:8px 26px;background:linear-gradient(135deg,#132a41,#22557a);border-radius:12px;padding:20px 22px;color:#eaf1f7;}
   .nextphase h3{color:#fff;font-size:16px;margin-bottom:8px;}
   .nextphase p{font-size:13px;color:#cdd8e3;line-height:1.6;}
   .nextphase .focus{margin-top:12px;font-size:12.5px;color:#eaf1f7;}
   .nextphase .focus b{color:var(--gold);}
-  .entry-note{font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.45;}
   .foot{text-align:center;font-size:11.5px;color:var(--muted);padding:26px 26px 0;line-height:1.7;}
   .foot b{color:var(--navy);}
   .disclaimer{font-size:10.5px;color:#9aa4af;padding:14px 26px 0;text-align:center;font-style:italic;}
 </style>
 </head>
 <body>
+
+
+
 <header>
   <div class="kicker">Landsec · MYO</div>
   <h1>Microsoft 365 Copilot — Early Adopter Impact</h1>
@@ -94,12 +118,11 @@
 
 <div class="intro">A working record of how I'm applying Microsoft 365 Copilot day to day at MYO — the use cases I've tested, the flagship workflow I've built, and what I'm learning as an early adopter. Time savings are my own estimates based on before/after comparison. Updated as I go.</div>
 
-<div class="stats">
-  <div class="stat"><div class="stat-num">16</div><div class="stat-lab">Use cases tested</div></div>
-  <div class="stat"><div class="stat-num">90+</div><div class="stat-lab">Minutes est. saved</div></div>
-  <div class="stat"><div class="stat-num">5</div><div class="stat-lab">Microsoft 365 surfaces</div></div>
-  <div class="stat"><div class="stat-num">1</div><div class="stat-lab">AI workflow built</div></div>
-</div>
+<div class="stats" id="stats">
+    <div class="stat"><div class="stat-num">19</div><div class="stat-lab">Use cases tested</div></div>
+    <div class="stat"><div class="stat-num">110+</div><div class="stat-lab">Minutes est. saved</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-lab">Microsoft 365 surfaces</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-lab">AI workflow built</div></div></div>
 
 <div class="section-label">Flagship Project</div>
 <div class="case">
@@ -128,26 +151,15 @@
 <div class="section-label">Why This Matters</div>
 <div class="card">
   <h3>Efficiency, consistency and scale</h3>
-  <div class="learn">
-    <div class="learn-p">The PO Hub isn't just a time saving on one task — it turns a manual, error-prone process into a consistent, centralised workflow that other MYO sites and teams could reuse. It shows how Copilot and the Power Platform work together to solve a real business problem, not just speed up individual tasks.</div>
-  </div>
+  <div class="learn"><div class="learn-p">The PO Hub isn't just a time saving on one task — it turns a manual, error-prone process into a consistent, centralised workflow that other MYO sites and teams could reuse. It shows how Copilot and the Power Platform work together to solve a real business problem, not just speed up individual tasks.</div></div>
 </div>
 
 <div class="section-label">Early Adopter Insights — What I've Learned</div>
 <div class="card">
   <h3>What I've learned</h3>
-  <div class="learn">
-    <div class="learn-t">Copilot is most powerful when connected to a workflow.</div>
-    <div class="learn-p">The biggest opportunity came from combining Copilot with Power Apps, SharePoint and Power Automate — rather than using Copilot only for individual tasks.</div>
-  </div>
-  <div class="learn">
-    <div class="learn-t">Small time savings add up.</div>
-    <div class="learn-p">Email drafting, information retrieval and summarisation each save minutes, but repeated across the working week they create meaningful cumulative savings.</div>
-  </div>
-  <div class="learn">
-    <div class="learn-t">Copilot can lower the barrier to automation.</div>
-    <div class="learn-p">Using Copilot as a development partner helped accelerate the creation and troubleshooting of Power Platform solutions — without specialist developer support.</div>
-  </div>
+  <div class="learn"><div class="learn-t">Copilot is most powerful when connected to a workflow.</div><div class="learn-p">The biggest opportunity came from combining Copilot with Power Apps, SharePoint and Power Automate — rather than using Copilot only for individual tasks.</div></div>
+  <div class="learn"><div class="learn-t">Small time savings add up.</div><div class="learn-p">Email drafting, information retrieval and summarisation each save minutes, but repeated across the working week they create meaningful cumulative savings.</div></div>
+  <div class="learn"><div class="learn-t">Copilot can lower the barrier to automation.</div><div class="learn-p">Using Copilot as a development partner helped accelerate the creation and troubleshooting of Power Platform solutions — without specialist developer support.</div></div>
 </div>
 
 <div class="section-label">Opportunities Identified</div>
@@ -163,7 +175,104 @@
 </div>
 
 <div class="section-label">The Log — Use Cases Tested</div>
-<div class="entries" id="entries"></div>
+<div class="entries" id="entries"><div class="cat-head prod">Productivity</div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Recording a training meeting</span><span class="entry-date">24 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">10 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(0)">✕ delete</button></div>
+        <div class="entry-note">Copilot said:
+
+1-hour Teams training session on the new Maintenance Request process. A large amount of information was covered, so the meeting recording and transcript were reviewed and summarised into a concise training log for easier reference and future access.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Summarised all my email for the week and find the one I still need to action.</span><span class="entry-date">21 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">5 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(1)">✕ delete</button></div>
+        <div class="entry-note">As its Friday I can make sure I have action everything before the weekend and Can start fresh on Monday</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Summarised Teams interaction for this week and check any pending action</span><span class="entry-date">21 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">5 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(2)">✕ delete</button></div>
+        <div class="entry-note">Check if I forgot any message or any action I needed to take</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Generated a daily schedule summary from Outlook calendar and upcoming meetings</span><span class="entry-date">16 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">4 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(3)">✕ delete</button></div>
+        <div class="entry-note">Reviewed the day's meetings, actions and priorities without manually checking calendar invites and emails — better time management and faster meeting prep.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Summarised a long contractor email thread into a clear client update</span><span class="entry-date">10 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">15 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(4)">✕ delete</button></div>
+        <div class="entry-note">Copilot found the emails, summarised the completed job, and drafted the client email — no need to read each one.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Pulled member names from a company's Excel sheet and reformatted them for the security team's pass update</span><span class="entry-date">10 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">5 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(5)">✕ delete</button></div>
+        
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Used Copilot's Custom Summary to turn a Finance training session (Nexudus Finance Drop-In) into a detailed, structured reference</span><span class="entry-date">29 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">13 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(8)">✕ delete</button></div>
+        <div class="entry-note">Captured how rent plans, meeting-room credit plans, credit sharing and reporting work — a reliable record to go back to instead of re-watching the session or asking again.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Located forms in Teams (badge form, locker form)</span><span class="entry-date">29 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Teams</span><span class="entry-saved">3 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(10)">✕ delete</button></div>
+        <div class="entry-note">Faster to find the right Excel forms.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Created and improved email templates, supplier communications and member updates</span><span class="entry-date">24 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">2 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(11)">✕ delete</button></div>
+        <div class="entry-note">Faster, more consistent communications with less drafting time.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Found an email that had been archived</span><span class="entry-date">22 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">4 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(14)">✕ delete</button></div>
+        <div class="entry-note">Located it instantly instead of scrolling through every email.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Used Copilot to draft email replies directly in Outlook</span><span class="entry-date">22 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">3 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(15)">✕ delete</button></div>
+        
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Had Copilot coach and rewrite an email to improve it</span><span class="entry-date">22 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">3 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(16)">✕ delete</button></div>
+        <div class="entry-note">Done in place, without opening a separate chat.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Found the last access-permission emails sent to members and reused them</span><span class="entry-date">21 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">3 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(17)">✕ delete</button></div>
+        <div class="entry-note">Reused a consistent template — access emails go out often.</div>
+      </div><div class="entry prod">
+        <div class="entry-top"><span class="entry-task">Summarised two emails and drafted direct answers</span><span class="entry-date">21 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">10 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(18)">✕ delete</button></div>
+        
+      </div><div class="cat-head proc">Process Improvement</div><div class="entry proc">
+        <div class="entry-top"><span class="entry-task">Transferred a full information page from one Excel sheet to another on SharePoint</span><span class="entry-date">6 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Excel</span><span class="entry-saved">10 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(7)">✕ delete</button></div>
+        <div class="entry-note">Moved site information across without manual re-entry.</div>
+      </div><div class="entry proc">
+        <div class="entry-top"><span class="entry-task">Found the manager's PO request email (with table), filled it with new info and drafted the reply</span><span class="entry-date">23 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Outlook</span><span class="entry-saved">5 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(12)">✕ delete</button></div>
+        
+      </div><div class="entry proc">
+        <div class="entry-top"><span class="entry-task">Built a fire-marshal register per company, adding names as they arrived by email</span><span class="entry-date">23 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Excel</span><span class="entry-saved">7 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(13)">✕ delete</button></div>
+        <div class="entry-note">No need to create and fill the sheet manually.</div>
+      </div><div class="cat-head dev">AI &amp; Automation Development</div><div class="entry dev">
+        <div class="entry-top"><span class="entry-task">Built a Power Automate flow that automatically notifies Finance when a PO request is submitted</span><span class="entry-date">7 Aug 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Power Platform</span><span class="entry-saved">3 min est. saved</span>
+        <button class="del-btn" onclick="delEntry(6)">✕ delete</button></div>
+        <div class="entry-note">Reduced manual email creation and improved consistency of information sent to Finance.</div>
+      </div><div class="entry dev">
+        <div class="entry-top"><span class="entry-task">Used Copilot as a development partner while building Power Apps, SharePoint lists, Power Automate flows and Copilot Agents</span><span class="entry-date">29 Jul 2026</span></div>
+        <div class="entry-meta"><span class="entry-app">Copilot Chat</span><span class="entry-saved">build</span>
+        <button class="del-btn" onclick="delEntry(9)">✕ delete</button></div>
+        <div class="entry-note">Reduced development time and helped solve technical issues without specialist developer support.</div>
+      </div></div>
 
 <div class="section-label">Next Phase</div>
 <div class="nextphase">
@@ -179,45 +288,126 @@
 <div class="disclaimer">Time savings shown are personal estimates based on before/after comparison of my own tasks, not formal measurement.</div>
 
 <script>
-// cat: prod = Productivity, proc = Process Improvement, dev = AI/Automation Development
-const ENTRIES=[
-  {date:"16 Aug 2026",app:"Teams",saved:4,cat:"prod",task:"Generated a daily schedule summary from Outlook calendar and upcoming meetings",note:"Reviewed the day's meetings, actions and priorities without manually checking calendar invites and emails — better time management and faster meeting prep."},
-  {date:"10 Aug 2026",app:"Teams",saved:15,cat:"prod",task:"Summarised a long contractor email thread into a clear client update",note:"Copilot found the emails, summarised the completed job, and drafted the client email — no need to read each one."},
-  {date:"10 Aug 2026",app:"Teams",saved:5,cat:"prod",task:"Pulled member names from a company's Excel sheet and reformatted them for the security team's pass update",note:""},
-  {date:"7 Aug 2026",app:"Power Platform",saved:3,cat:"dev",task:"Built a Power Automate flow that automatically notifies Finance when a PO request is submitted",note:"Reduced manual email creation and improved consistency of information sent to Finance."},
-  {date:"6 Aug 2026",app:"Excel",saved:10,cat:"proc",task:"Transferred a full information page from one Excel sheet to another on SharePoint",note:"Moved site information across without manual re-entry."},
-  {date:"29 Jul 2026",app:"Teams",saved:13,cat:"prod",task:"Used Copilot's Custom Summary to turn a Finance training session (Nexudus Finance Drop-In) into a detailed, structured reference",note:"Captured how rent plans, meeting-room credit plans, credit sharing and reporting work — a reliable record to go back to instead of re-watching the session or asking again."},
-  {date:"29 Jul 2026",app:"Copilot Chat",saved:0,cat:"dev",task:"Used Copilot as a development partner while building Power Apps, SharePoint lists, Power Automate flows and Copilot Agents",note:"Reduced development time and helped solve technical issues without specialist developer support."},
-  {date:"29 Jul 2026",app:"Teams",saved:3,cat:"prod",task:"Located forms in Teams (badge form, locker form)",note:"Faster to find the right Excel forms."},
-  {date:"24 Jul 2026",app:"Outlook",saved:2,cat:"prod",task:"Created and improved email templates, supplier communications and member updates",note:"Faster, more consistent communications with less drafting time."},
-  {date:"23 Jul 2026",app:"Outlook",saved:5,cat:"proc",task:"Found the manager's PO request email (with table), filled it with new info and drafted the reply",note:""},
-  {date:"23 Jul 2026",app:"Excel",saved:7,cat:"proc",task:"Built a fire-marshal register per company, adding names as they arrived by email",note:"No need to create and fill the sheet manually."},
-  {date:"22 Jul 2026",app:"Outlook",saved:4,cat:"prod",task:"Found an email that had been archived",note:"Located it instantly instead of scrolling through every email."},
-  {date:"22 Jul 2026",app:"Outlook",saved:3,cat:"prod",task:"Used Copilot to draft email replies directly in Outlook",note:""},
-  {date:"22 Jul 2026",app:"Outlook",saved:3,cat:"prod",task:"Had Copilot coach and rewrite an email to improve it",note:"Done in place, without opening a separate chat."},
-  {date:"21 Jul 2026",app:"Outlook",saved:3,cat:"prod",task:"Found the last access-permission emails sent to members and reused them",note:"Reused a consistent template — access emails go out often."},
-  {date:"21 Jul 2026",app:"Outlook",saved:10,cat:"prod",task:"Summarised two emails and drafted direct answers",note:""},
-];
-const CATS=[
-  {key:"prod",label:"Productivity"},
-  {key:"proc",label:"Process Improvement"},
-  {key:"dev",label:"AI & Automation Development"},
-];
-function entryHTML(e){
-  return `<div class="entry ${e.cat}">
-    <div class="entry-top"><span class="entry-task">${e.task}</span><span class="entry-date">${e.date}</span></div>
-    <div class="entry-meta"><span class="entry-app">${e.app}</span>${e.saved>0?`<span class="entry-saved">${e.saved} min est. saved</span>`:`<span class="entry-saved">build</span>`}</div>
-    ${e.note?`<div class="entry-note">${e.note}</div>`:''}
-  </div>`;
+const SEED=[{"date":"2026-08-24","app":"Teams","saved":10,"cat":"prod","task":"Recording a training meeting","note":"Copilot said:\n\n1-hour Teams training session on the new Maintenance Request process. A large amount of information was covered, so the meeting recording and transcript were reviewed and summarised into a concise training log for easier reference and future access."},{"date":"2026-08-21","app":"Outlook","saved":5,"cat":"prod","task":"Summarised all my email for the week and find the one I still need to action.","note":"As its Friday I can make sure I have action everything before the weekend and Can start fresh on Monday"},{"date":"2026-08-21","app":"Teams","saved":5,"cat":"prod","task":"Summarised Teams interaction for this week and check any pending action","note":"Check if I forgot any message or any action I needed to take"},{"date":"2026-08-16","app":"Teams","saved":4,"cat":"prod","task":"Generated a daily schedule summary from Outlook calendar and upcoming meetings","note":"Reviewed the day's meetings, actions and priorities without manually checking calendar invites and emails — better time management and faster meeting prep."},{"date":"2026-08-10","app":"Teams","saved":15,"cat":"prod","task":"Summarised a long contractor email thread into a clear client update","note":"Copilot found the emails, summarised the completed job, and drafted the client email — no need to read each one."},{"date":"2026-08-10","app":"Teams","saved":5,"cat":"prod","task":"Pulled member names from a company's Excel sheet and reformatted them for the security team's pass update","note":""},{"date":"2026-08-07","app":"Power Platform","saved":3,"cat":"dev","task":"Built a Power Automate flow that automatically notifies Finance when a PO request is submitted","note":"Reduced manual email creation and improved consistency of information sent to Finance."},{"date":"2026-08-06","app":"Excel","saved":10,"cat":"proc","task":"Transferred a full information page from one Excel sheet to another on SharePoint","note":"Moved site information across without manual re-entry."},{"date":"2026-07-29","app":"Teams","saved":13,"cat":"prod","task":"Used Copilot's Custom Summary to turn a Finance training session (Nexudus Finance Drop-In) into a detailed, structured reference","note":"Captured how rent plans, meeting-room credit plans, credit sharing and reporting work — a reliable record to go back to instead of re-watching the session or asking again."},{"date":"2026-07-29","app":"Copilot Chat","saved":0,"cat":"dev","task":"Used Copilot as a development partner while building Power Apps, SharePoint lists, Power Automate flows and Copilot Agents","note":"Reduced development time and helped solve technical issues without specialist developer support."},{"date":"2026-07-29","app":"Teams","saved":3,"cat":"prod","task":"Located forms in Teams (badge form, locker form)","note":"Faster to find the right Excel forms."},{"date":"2026-07-24","app":"Outlook","saved":2,"cat":"prod","task":"Created and improved email templates, supplier communications and member updates","note":"Faster, more consistent communications with less drafting time."},{"date":"2026-07-23","app":"Outlook","saved":5,"cat":"proc","task":"Found the manager's PO request email (with table), filled it with new info and drafted the reply","note":""},{"date":"2026-07-23","app":"Excel","saved":7,"cat":"proc","task":"Built a fire-marshal register per company, adding names as they arrived by email","note":"No need to create and fill the sheet manually."},{"date":"2026-07-22","app":"Outlook","saved":4,"cat":"prod","task":"Found an email that had been archived","note":"Located it instantly instead of scrolling through every email."},{"date":"2026-07-22","app":"Outlook","saved":3,"cat":"prod","task":"Used Copilot to draft email replies directly in Outlook","note":""},{"date":"2026-07-22","app":"Outlook","saved":3,"cat":"prod","task":"Had Copilot coach and rewrite an email to improve it","note":"Done in place, without opening a separate chat."},{"date":"2026-07-21","app":"Outlook","saved":3,"cat":"prod","task":"Found the last access-permission emails sent to members and reused them","note":"Reused a consistent template — access emails go out often."},{"date":"2026-07-21","app":"Outlook","saved":10,"cat":"prod","task":"Summarised two emails and drafted direct answers","note":""}];
+const KEY="copilot_impact_entries_v1";
+const CATS=[{key:"prod",label:"Productivity"},{key:"proc",label:"Process Improvement"},{key:"dev",label:"AI & Automation Development"}];
+const APPSET=new Set();
+
+function load(){return SEED.slice();}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){alert('Could not save — check browser storage settings.');}}
+let DATA=load();
+
+function fmtDate(iso){
+  try{const d=new Date(iso+"T00:00:00");return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}catch(e){return iso;}
 }
-let html="";
-CATS.forEach(c=>{
-  const items=ENTRIES.filter(e=>e.cat===c.key);
-  if(!items.length) return;
-  html+=`<div class="cat-head ${c.key}">${c.label}</div>`;
-  html+=items.map(entryHTML).join('');
-});
-document.getElementById('entries').innerHTML=html;
+function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function sortData(){DATA.sort((a,b)=>(b.date||"").localeCompare(a.date||""));}
+
+function render(){
+  sortData();
+  // stats
+  const total=DATA.length;
+  const mins=DATA.reduce((s,e)=>s+(Number(e.saved)||0),0);
+  const surfaces=new Set(DATA.map(e=>e.app)).size;
+  const builds=DATA.filter(e=>(Number(e.saved)||0)===0).length;
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="stat-num">${total}</div><div class="stat-lab">Use cases tested</div></div>
+    <div class="stat"><div class="stat-num">${mins}+</div><div class="stat-lab">Minutes est. saved</div></div>
+    <div class="stat"><div class="stat-num">${surfaces}</div><div class="stat-lab">Microsoft 365 surfaces</div></div>
+    <div class="stat"><div class="stat-num">${builds||1}</div><div class="stat-lab">AI workflow${(builds||1)>1?'s':''} built</div></div>`;
+  // entries by category
+  let html="";
+  CATS.forEach(c=>{
+    const items=DATA.filter(e=>e.cat===c.key);
+    if(!items.length)return;
+    html+=`<div class="cat-head ${c.key}">${c.label}</div>`;
+    html+=items.map((e)=>{
+      const gi=DATA.indexOf(e);
+      return `<div class="entry ${e.cat}">
+        <div class="entry-top"><span class="entry-task">${esc(e.task)}</span><span class="entry-date">${fmtDate(e.date)}</span></div>
+        <div class="entry-meta"><span class="entry-app">${esc(e.app)}</span>${(Number(e.saved)||0)>0?`<span class="entry-saved">${e.saved} min est. saved</span>`:`<span class="entry-saved">build</span>`}
+        <button class="del-btn" onclick="delEntry(${gi})">✕ delete</button></div>
+        ${e.note?`<div class="entry-note">${esc(e.note)}</div>`:''}
+      </div>`;
+    }).join('');
+  });
+  document.getElementById('entries').innerHTML=html;
+}
+
+function toggleForm(){
+  const f=document.getElementById('addForm');
+  f.classList.toggle('open');
+  if(f.classList.contains('open')){
+    document.getElementById('f_date').value=new Date().toISOString().slice(0,10);
+    document.getElementById('f_task').focus();
+  }
+}
+function addEntry(){
+  const task=document.getElementById('f_task').value.trim();
+  if(!task){document.getElementById('msg').textContent='Add a task first.';return;}
+  const e={
+    date:document.getElementById('f_date').value||new Date().toISOString().slice(0,10),
+    app:document.getElementById('f_app').value.trim()||'Copilot',
+    saved:Number(document.getElementById('f_saved').value)||0,
+    cat:document.getElementById('f_cat').value,
+    task:task,
+    note:document.getElementById('f_note').value.trim()
+  };
+  DATA.push(e);save(DATA);render();
+  ['f_task','f_app','f_saved','f_note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('msg').textContent='✓ Saved. Add another, or Copy deploy code when ready.';
+  setTimeout(()=>{document.getElementById('msg').textContent='';},4000);
+}
+function delEntry(i){
+  if(!confirm('Delete this entry?'))return;
+  DATA.splice(i,1);save(DATA);render();
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='copilot-impact-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function importData(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(Array.isArray(d)){DATA=d;save(DATA);render();alert('Backup imported — '+d.length+' entries.');}else alert('That file does not look right.');}catch(e){alert('Could not read that file.');}};
+  r.readAsText(file);
+}
+
+// ---- Build the clean deploy HTML (page WITHOUT the toolbar, data baked in) ----
+function buildDeployHTML(){
+  sortData();
+  const full=document.documentElement.outerHTML;
+  // remove the private toolbar block
+  let out=full.replace(/<!-- =+ PRIVATE TOOLBAR[\s\S]*?END PRIVATE TOOLBAR =+ -->/,'');
+  // replace the SEED array with current data so the deployed page shows everything, statically
+  const dataJS=JSON.stringify(DATA);
+  // In the deployed file we want load() to always use the baked data (no localStorage dependency for viewers)
+  out=out.replace(/const SEED=\[[\s\S]*?\];/, 'const SEED='+dataJS+';');
+  out=out.replace(/function load\(\)\{[\s\S]*?return SEED\.slice\(\);\}/, 'function load(){return SEED.slice();}');
+  return '<!DOCTYPE html>\n'+out;
+}
+function showDeploy(){
+  const box=document.getElementById('deployBox');
+  document.getElementById('deployCode').value=buildDeployHTML();
+  box.classList.add('open');
+  document.getElementById('deployCode').select();
+}
+function copyDeploy(){
+  const ta=document.getElementById('deployCode');
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    document.getElementById('deployMsg').textContent='✓ Copied. Now paste into GitHub index.html.';
+  }).catch(()=>{
+    document.execCommand('copy');
+    document.getElementById('deployMsg').textContent='✓ Copied (fallback). Paste into GitHub index.html.';
+  });
+}
+render();
 </script>
-</body>
-</html>
+
+
+</body></html>
