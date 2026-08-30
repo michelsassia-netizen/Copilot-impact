@@ -59,6 +59,56 @@ body {
   background-attachment: fixed;
 }
 
+/* Dancing couple silhouette — fixed at bottom, backlit by gold rim glow.
+ * Sits above the base bg but behind the star field and app card, so it
+ * reads as "dancers on the floor" rather than a foreground graphic. */
+.dancers-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100vw;
+  max-width: 520px;
+  height: 62vh;
+  max-height: 520px;
+  pointer-events: none;
+  z-index: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.floor-pool {
+  position: absolute;
+  bottom: -8%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130%;
+  height: 40%;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(255, 202, 58, 0.28) 0%, rgba(255, 202, 58, 0.08) 30%, transparent 65%);
+  pointer-events: none;
+}
+
+.dancers-svg {
+  position: relative;
+  width: 82%;
+  height: 100%;
+  color: #05030b; /* just barely darker than --night so silhouette reads */
+  filter:
+    drop-shadow(0 0 14px rgba(255, 202, 58, 0.55))
+    drop-shadow(0 0 28px rgba(255, 202, 58, 0.28))
+    drop-shadow(0 -18px 40px rgba(224, 24, 43, 0.15))
+    drop-shadow(20px -12px 40px rgba(10, 59, 212, 0.18));
+  opacity: 0.85;
+}
+
+@media (max-width: 400px) {
+  .dancers-wrap { height: 56vh; }
+  .dancers-svg { width: 88%; }
+}
+
 /* Faint gold star field — drapo's lone star multiplied into texture */
 body::before {
   content: '';
