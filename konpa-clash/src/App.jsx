@@ -3,7 +3,7 @@ import { VERIFIED_QUESTIONS, shuffleQuestions } from './data/questions.js';
 import { pickOpponent, rollOpponentScore } from './data/opponents.js';
 import { MatchScreen } from './components/MatchScreen.jsx';
 import { ResultScreen } from './components/ResultScreen.jsx';
-import { Dancers } from './components/Dancers.jsx';
+import { Scene } from './components/Scene.jsx';
 
 function newMatch() {
   return {
@@ -39,7 +39,7 @@ export default function App() {
 
   return (
     <>
-      <Dancers />
+      <Scene />
       <div className="app">
         <header className="header">
         <div className="brand">
