@@ -4,6 +4,7 @@ import { pickOpponent, rollOpponentScore } from './data/opponents.js';
 import { MatchScreen } from './components/MatchScreen.jsx';
 import { ResultScreen } from './components/ResultScreen.jsx';
 import { Scene } from './components/Scene.jsx';
+import { SponsorSlot } from './components/SponsorSlot.jsx';
 
 function newMatch() {
   return {
@@ -47,6 +48,8 @@ export default function App() {
         </div>
         <div className="brand-sub">Match trivia · 6 kesyon · yon sèl gayan</div>
       </header>
+
+        <SponsorSlot />
 
         {!done ? (
           <MatchScreen

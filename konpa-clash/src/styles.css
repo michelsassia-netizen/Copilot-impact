@@ -227,6 +227,139 @@ button:focus-visible,
   outline-offset: 3px;
 }
 
+/* ==============================
+ * Sponsor of the Day slot
+ * ============================== */
+.sponsor-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.sponsor-slot {
+  position: relative;
+  margin: 4px 2px 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 202, 58, 0.08), rgba(255, 202, 58, 0.02));
+  border: 1px solid rgba(255, 202, 58, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 202, 58, 0.08) inset,
+    0 0 24px rgba(255, 202, 58, 0.14),
+    0 4px 14px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* Soft halo behind the whole slot */
+.sponsor-slot::before {
+  content: '';
+  position: absolute;
+  left: -20%;
+  top: -60%;
+  width: 60%;
+  height: 220%;
+  background: radial-gradient(ellipse, rgba(255, 202, 58, 0.35), transparent 65%);
+  pointer-events: none;
+  filter: blur(6px);
+}
+
+.sponsor-label {
+  position: relative;
+  font-family: var(--font-label);
+  font-weight: 800;
+  font-size: 9px;
+  letter-spacing: 2.5px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.sponsor-body {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sponsor-mark {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff5d0, var(--gold) 55%, var(--gold-deep) 100%);
+  color: #2a1c00;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 2px rgba(255, 202, 58, 0.5),
+    0 0 14px rgba(255, 202, 58, 0.5),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.sponsor-slot.is-placeholder .sponsor-mark {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255, 202, 58, 0.25) 0 4px,
+      rgba(255, 202, 58, 0.1) 4px 8px
+    );
+  color: var(--gold);
+  font-size: 14px;
+}
+
+.sponsor-copy {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.sponsor-brand {
+  font-family: var(--font-label);
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--cream);
+  letter-spacing: 0.3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sponsor-tag {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sponsor-tanbou {
+  width: 22px;
+  height: 32px;
+  color: var(--gold);
+  opacity: 0.75;
+  animation: tanbou-pulse 1.6s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 202, 58, 0.4));
+  flex-shrink: 0;
+}
+
+@keyframes tanbou-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsor-tanbou { animation: none; }
+}
+
 /* Layout shell — mobile-first, 440px cap */
 .app {
   position: relative;
