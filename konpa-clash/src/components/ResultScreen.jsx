@@ -1,59 +1,77 @@
-import { titleForScore } from '../data/titles.js';
+// End-of-match summary (light cream) — shown after the last KONTINYE.
+// Head-to-head vs simulated opponent, emoji grid, and Rejwe.
 
-export function ResultScreen({ playerScore, opponent, opponentScore, total, results, onReplay }) {
-  const title = titleForScore(playerScore);
+import { titleForScore } from '../data/titles.js';
+import { SponsorBand } from './SponsorBand.jsx';
+
+export function ResultScreen({
+  playerScore,
+  opponent,
+  opponentScore,
+  total,
+  results,
+  totalPwen,
+  onReplay,
+}) {
+  const t = titleForScore(playerScore, total);
 
   let verdictClass = 'draw';
   let verdictText = `Egalite 🤝 — ${playerScore}-${opponentScore}`;
   if (playerScore > opponentScore) {
     verdictClass = 'win';
-    verdictText = `Ou genyen! 🏆`;
+    verdictText = 'Ou genyen! 🏆';
   } else if (playerScore < opponentScore) {
     verdictClass = 'lose';
     verdictText = `${opponent.name} genyen 😤`;
   }
 
-  const emojiGrid = results.map((r) => (r ? '🟨' : '⬛')).join('');
+  const emoji = results.map((r) => (r ? '🟨' : '⬛')).join('');
 
   return (
-    <div className="card">
-      <div className="pips">
-        {results.map((r, i) => (
-          <span key={i} className={`pip ${r ? 'right' : 'wrong'}`} aria-hidden="true" />
-        ))}
-      </div>
+    <div className="app surface-light">
+      <div className="final">
+        <div style={{ fontSize: 44 }} aria-hidden="true">{t.emoji}</div>
+        <h1 className="final-title">{t.title}</h1>
+        <div className="final-quip">{t.quip}</div>
 
-      <div style={{ textAlign: 'center', fontSize: 44, marginTop: 4 }} aria-hidden="true">
-        {title.emoji}
-      </div>
-      <h2 className="result-title">{title.title}</h2>
-      <p className="result-quip">{title.quip}</p>
-
-      <div className="weave" />
-
-      <div className="scoreboard">
-        <div className={`side ${playerScore > opponentScore ? 'win' : ''}`}>
-          <div className="who">Ou 🇭🇹</div>
-          <div className="score">{playerScore}<span style={{ fontSize: 18, opacity: 0.6 }}>/{total}</span></div>
+        <div className="final-score">
+          <div className={`final-side${playerScore > opponentScore ? ' win' : ''}`}>
+            <div className="who">Ou 🇭🇹</div>
+            <div className="val">{playerScore}<span style={{ fontSize: 18, opacity: 0.5 }}>/{total}</span></div>
+          </div>
+          <div className="final-versus">vs</div>
+          <div className={`final-side${opponentScore > playerScore ? ' win' : ''}`}>
+            <div className="who">{opponent.name} {opponent.country}</div>
+            <div className="val">{opponentScore}<span style={{ fontSize: 18, opacity: 0.5 }}>/{total}</span></div>
+          </div>
         </div>
-        <div className="versus">vs</div>
-        <div className={`side ${opponentScore > playerScore ? 'win' : ''}`}>
-          <div className="who">{opponent.name} <span className="country">{opponent.country}</span></div>
-          <div className="score">{opponentScore}<span style={{ fontSize: 18, opacity: 0.6 }}>/{total}</span></div>
+
+        <div className={`final-verdict ${verdictClass}`}>{verdictText}</div>
+
+        <div className="final-emoji" aria-label={`Rezilta: ${playerScore} sou ${total}`}>{emoji}</div>
+
+        <div className="reward-stats" style={{ marginBottom: 20 }}>
+          <div className="reward-stat">
+            <div className="reward-stat-label">Pwen total</div>
+            <div className="reward-stat-val">{totalPwen}</div>
+          </div>
+          <div className="reward-stat">
+            <div className="reward-stat-label">Bon repons</div>
+            <div className="reward-stat-val">{playerScore}/{total}</div>
+          </div>
+          <div className="reward-stat">
+            <div className="reward-stat-label">Rezilta</div>
+            <div className="reward-stat-val">
+              {playerScore > opponentScore ? 'W' : playerScore < opponentScore ? 'L' : 'D'}
+            </div>
+          </div>
         </div>
+
+        <button className="cta cta-primary reward-cta" onClick={onReplay} type="button">
+          🔁 Rejwe
+        </button>
       </div>
-
-      <div className={`verdict ${verdictClass}`}>{verdictText}</div>
-
-      <div className="emoji-grid" aria-label={`Rezilta: ${playerScore} sou ${total}`}>
-        {emojiGrid}
-      </div>
-
-      <button className="rejwe" onClick={onReplay} type="button">
-        🔁 Rejwe
-      </button>
-
-      <p className="footnote">Yon lòt konbatan ap tann ou.</p>
+      <SponsorBand />
     </div>
   );
 }

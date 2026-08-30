@@ -1,25 +1,9 @@
 // Simulated opponents for Phase 1 (before real matchmaking in Phase 5/7).
-// Names lean Haitian-diaspora to keep the vibe honest.
 
 const NAMES = [
-  'Djakout',
-  'Farah',
-  'Ronald',
-  'Mikaelson',
-  'Naïka',
-  'Wideline',
-  'Steevy',
-  'Ralph',
-  'Chrislove',
-  'Jephté',
-  'Sabine',
-  'Kervens',
-  'Roselaure',
-  'Fabrice',
-  'Lorencia',
-  'Emmanuel',
-  'Islanda',
-  'Woodkid',
+  'Djakout', 'Farah', 'Ronald', 'Mikaelson', 'Naïka', 'Wideline',
+  'Steevy', 'Ralph', 'Chrislove', 'Jephté', 'Sabine', 'Kervens',
+  'Roselaure', 'Fabrice', 'Lorencia', 'Emmanuel', 'Islanda', 'Woodkid',
 ];
 
 const COUNTRIES = ['🇭🇹', '🇺🇸', '🇨🇦', '🇫🇷', '🇧🇪'];
@@ -30,15 +14,17 @@ export function pickOpponent() {
   return { name, country };
 }
 
-// Weighted score so results feel like real players — mostly 3-5/6, occasionally
-// a wipe or a 6. Keeps head-to-head suspense honest without being a pushover.
-export function rollOpponentScore(total = 6) {
-  const weights = [1, 2, 5, 8, 10, 7, 3]; // idx 0..6 out of 6
-  const sum = weights.reduce((a, b) => a + b, 0);
+// Weighted so most matches feel close (5–7/10), with occasional wipes and
+// occasional 10s. Keeps head-to-head suspense honest.
+export function rollOpponentScore(total = 10) {
+  // Weights over 0..total. Peaks around 5–7 for a 10-question match.
+  const weights = [1, 1, 2, 4, 6, 8, 9, 7, 4, 2, 1];
+  const capped = weights.slice(0, total + 1);
+  const sum = capped.reduce((a, b) => a + b, 0);
   let r = Math.random() * sum;
-  for (let i = 0; i < weights.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return Math.min(i, total);
+  for (let i = 0; i < capped.length; i++) {
+    r -= capped[i];
+    if (r <= 0) return i;
   }
   return Math.floor(total / 2);
 }

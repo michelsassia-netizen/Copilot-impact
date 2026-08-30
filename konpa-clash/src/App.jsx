@@ -1,76 +1,132 @@
-import { useState, useMemo } from 'react';
-import { VERIFIED_QUESTIONS, shuffleQuestions } from './data/questions.js';
+// Konpa Clash — Phase 1 state machine
+//   phase: 'home' | 'question' | 'reward' | 'result'
+// - home:    HomeScreen (cream). Tap "Jwe kounye a" → starts a match
+// - question: QuestionScreen (dark navy). Answer or timer runs out
+// - reward:   RewardScreen (cream). BRAVO / Pa fwa sa a. Tap KONTINYE
+// - result:   ResultScreen (cream). Head-to-head vs simulated opponent,
+//             Rejwe restarts the match from home
+
+import { useState } from 'react';
+import { buildMatchQuestions } from './data/questions.js';
 import { pickOpponent, rollOpponentScore } from './data/opponents.js';
-import { MatchScreen } from './components/MatchScreen.jsx';
+import { HomeScreen } from './components/HomeScreen.jsx';
+import { QuestionScreen } from './components/QuestionScreen.jsx';
+import { RewardScreen } from './components/RewardScreen.jsx';
 import { ResultScreen } from './components/ResultScreen.jsx';
-import { Scene } from './components/Scene.jsx';
-import { SponsorSlot } from './components/SponsorSlot.jsx';
+
+const MATCH_LEN = 10;
+const CORRECT_PWEN = 100;
 
 function newMatch() {
+  const qs = buildMatchQuestions(MATCH_LEN);
   return {
-    questions: shuffleQuestions(VERIFIED_QUESTIONS),
+    questions: qs,
     opponent: pickOpponent(),
-    opponentScore: rollOpponentScore(VERIFIED_QUESTIONS.length),
-    currentIndex: 0,
-    results: [], // array of booleans, one per answered question
+    opponentScore: rollOpponentScore(MATCH_LEN),
+    index: 0,
+    results: [],       // per-question booleans
+    lastOutcome: null, // { correct, timedOut, skipped, pickedIndex }
+    totalPwen: 0,
   };
 }
 
 export default function App() {
-  const [match, setMatch] = useState(() => newMatch());
+  const [phase, setPhase] = useState('home');
+  const [match, setMatch] = useState(null);
 
-  const total = match.questions.length;
-  const done = match.results.length >= total;
-  const playerScore = useMemo(
-    () => match.results.filter(Boolean).length,
-    [match.results]
-  );
+  function startMatch() {
+    setMatch(newMatch());
+    setPhase('question');
+  }
 
-  function handleAnswered(isRight) {
-    setMatch((prev) => ({
-      ...prev,
-      currentIndex: prev.currentIndex + 1,
-      results: [...prev.results, isRight],
-    }));
+  function handleAnswered(outcome) {
+    setMatch((prev) => {
+      const earned = outcome.correct ? CORRECT_PWEN : 0;
+      return {
+        ...prev,
+        results: [...prev.results, !!outcome.correct],
+        lastOutcome: { ...outcome, earned },
+        totalPwen: prev.totalPwen + earned,
+      };
+    });
+    setPhase('reward');
+  }
+
+  function handleContinue() {
+    setMatch((prev) => {
+      const nextIndex = prev.index + 1;
+      if (nextIndex >= prev.questions.length) {
+        setPhase('result');
+        return prev;
+      }
+      setPhase('question');
+      return { ...prev, index: nextIndex };
+    });
   }
 
   function handleReplay() {
-    setMatch(newMatch());
+    setMatch(null);
+    setPhase('home');
   }
 
+  function handleAbout() {
+    // Placeholder — Phase 1 keeps this simple. A proper Aprann Plis screen
+    // (game rules + Haitian music context) can slot in later.
+    alert(
+      'Konpa Clash\n\n' +
+      "Yon jwèt trivia mizik ayisyen. 10 kesyon nan Kreyòl kont yon lòt jwè.\n\n" +
+      "Ou monte klasman lè ou bat lòt moun. Konpa dirèk te kreye an 1955 pa Nemours Jean-Baptiste."
+    );
+  }
+
+  if (phase === 'home' || !match) {
+    return <HomeScreen onStart={startMatch} onAbout={handleAbout} />;
+  }
+
+  if (phase === 'question') {
+    return (
+      <QuestionScreen
+        question={match.questions[match.index]}
+        index={match.index}
+        total={match.questions.length}
+        coins={match.totalPwen}
+        onAnswered={handleAnswered}
+        onBack={handleReplay}
+      />
+    );
+  }
+
+  if (phase === 'reward') {
+    const correctCount = match.results.filter(Boolean).length;
+    const isLast = match.index + 1 >= match.questions.length;
+    return (
+      <RewardScreen
+        correct={!!match.lastOutcome?.correct}
+        timedOut={!!match.lastOutcome?.timedOut}
+        skipped={!!match.lastOutcome?.skipped}
+        question={match.questions[match.index]}
+        earnedPwen={match.lastOutcome?.earned ?? 0}
+        index={match.index}
+        total={match.questions.length}
+        correctCount={correctCount}
+        totalPwen={match.totalPwen}
+        onContinue={handleContinue}
+        isLast={isLast}
+      />
+    );
+  }
+
+  // phase === 'result'
+  const playerScore = match.results.filter(Boolean).length;
   return (
-    <>
-      <Scene />
-      <div className="app">
-        <header className="header">
-        <div className="brand">
-          KONPA <span className="brand-flag">🇭🇹</span>
-          <div className="brand-clash">CLASH</div>
-        </div>
-        <div className="brand-sub">Match trivia · 6 kesyon · yon sèl gayan</div>
-      </header>
-
-        <SponsorSlot />
-
-        {!done ? (
-          <MatchScreen
-            questions={match.questions}
-            currentIndex={match.currentIndex}
-            results={match.results}
-            onAnswered={handleAnswered}
-            opponent={match.opponent}
-          />
-        ) : (
-          <ResultScreen
-            playerScore={playerScore}
-            opponent={match.opponent}
-            opponentScore={match.opponentScore}
-            total={total}
-            results={match.results}
-            onReplay={handleReplay}
-          />
-        )}
-      </div>
-    </>
+    <ResultScreen
+      playerScore={playerScore}
+      opponent={match.opponent}
+      opponentScore={match.opponentScore}
+      total={match.questions.length}
+      results={match.results}
+      totalPwen={match.totalPwen}
+      onReplay={handleReplay}
+    />
   );
 }
