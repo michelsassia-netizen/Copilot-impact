@@ -44,7 +44,8 @@ export default function App() {
       <div className="app">
         <header className="header">
         <div className="brand">
-          KONPA <span className="brand-flag">🇭🇹</span> CLASH
+          KONPA <span className="brand-flag">🇭🇹</span>
+          <div className="brand-clash">CLASH</div>
         </div>
         <div className="brand-sub">Match trivia · 6 kesyon · yon sèl gayan</div>
       </header>
