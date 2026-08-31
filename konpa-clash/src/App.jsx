@@ -1,17 +1,21 @@
-// Konpa Clash — Phase 2 wiring
-// Auth flow (magic link via Supabase) is the outer shell; the game state
-// machine (home/question/reward/result) runs inside once we know whether
-// the player is signed-in, guest, or Supabase isn't configured yet.
+// Konpa Clash — Phase 3 wiring
+// Adds bottom tab bar (AKÈY · LIDÈ · BOUTIK · PROFIL), the Profile screen,
+// placeholder screens for later-phase tabs, and calls the complete_match
+// RPC once a match finishes to award W/L/D + coins + XP + badges.
 
 import { useState, useCallback } from 'react';
 import { useAuth } from './hooks/useAuth.js';
 import { buildMatchQuestions } from './data/questions.js';
 import { pickOpponent, rollOpponentScore } from './data/opponents.js';
+import { completeMatch } from './lib/game.js';
 import { HomeScreen } from './components/HomeScreen.jsx';
 import { QuestionScreen } from './components/QuestionScreen.jsx';
 import { RewardScreen } from './components/RewardScreen.jsx';
 import { ResultScreen } from './components/ResultScreen.jsx';
 import { LoginScreen } from './components/LoginScreen.jsx';
+import { ProfileScreen } from './components/ProfileScreen.jsx';
+import { ComingSoonScreen } from './components/ComingSoonScreen.jsx';
+import { TabBar } from './components/TabBar.jsx';
 
 const MATCH_LEN = 10;
 const CORRECT_PWEN = 100;
@@ -27,6 +31,7 @@ function newMatch() {
     results: [],
     lastOutcome: null,
     totalPwen: 0,
+    settled: null, // stats after complete_match runs
   };
 }
 
@@ -36,11 +41,14 @@ export default function App() {
     () => typeof window !== 'undefined' && localStorage.getItem(GUEST_KEY) === '1'
   );
 
+  const [tab, setTab] = useState('home'); // AKÈY tab by default
   const [phase, setPhase] = useState('home'); // 'home' | 'question' | 'reward' | 'result'
   const [match, setMatch] = useState(null);
+  const [statsRefresh, setStatsRefresh] = useState(0);
 
   const startMatch = useCallback(() => {
     setMatch(newMatch());
+    setTab('home');
     setPhase('question');
   }, []);
 
@@ -63,17 +71,35 @@ export default function App() {
       if (!prev) return prev;
       const nextIndex = prev.index + 1;
       if (nextIndex >= prev.questions.length) {
+        // Match is over — settle via complete_match, then show result
+        const correctCount = prev.results.filter(Boolean).length;
+        completeMatch({
+          playerScore: correctCount,
+          opponentScore: prev.opponentScore,
+          correctCount,
+          total: prev.questions.length,
+          isGuest: !user,
+        })
+          .then((settled) => {
+            setMatch((m) => (m ? { ...m, settled } : m));
+            setStatsRefresh((n) => n + 1);
+          })
+          .catch((err) => {
+            console.error('complete_match failed', err);
+            setMatch((m) => (m ? { ...m, settled: { error: err.message } } : m));
+          });
         setPhase('result');
         return prev;
       }
       setPhase('question');
       return { ...prev, index: nextIndex };
     });
-  }, []);
+  }, [user]);
 
   const handleReplay = useCallback(() => {
     setMatch(null);
     setPhase('home');
+    setTab('home');
   }, []);
 
   const goToLogin = useCallback(() => {
@@ -102,8 +128,6 @@ export default function App() {
     );
   }, []);
 
-  // While the auth check is resolving, show a tiny cream splash so
-  // logged-in users don't briefly see the login screen.
   if (loading) {
     return (
       <div className="app surface-light">
@@ -114,27 +138,14 @@ export default function App() {
     );
   }
 
-  // Supabase is configured AND user is not signed in AND has not chosen guest.
   if (supabaseEnabled && !session && !guestMode) {
     return <LoginScreen onGuest={chooseGuest} />;
   }
 
   const isGuest = !session;
 
-  if (phase === 'home' || !match) {
-    return (
-      <HomeScreen
-        onStart={startMatch}
-        onAbout={handleAbout}
-        user={user}
-        isGuest={isGuest}
-        onSignIn={goToLogin}
-        onSignOut={handleSignOut}
-      />
-    );
-  }
-
-  if (phase === 'question') {
+  // Mid-match views take over the whole screen — no tab bar visible
+  if (phase === 'question' && match) {
     return (
       <QuestionScreen
         question={match.questions[match.index]}
@@ -147,7 +158,7 @@ export default function App() {
     );
   }
 
-  if (phase === 'reward') {
+  if (phase === 'reward' && match) {
     const correctCount = match.results.filter(Boolean).length;
     const isLast = match.index + 1 >= match.questions.length;
     return (
@@ -167,16 +178,69 @@ export default function App() {
     );
   }
 
-  const playerScore = match.results.filter(Boolean).length;
+  if (phase === 'result' && match) {
+    const playerScore = match.results.filter(Boolean).length;
+    return (
+      <ResultScreen
+        playerScore={playerScore}
+        opponent={match.opponent}
+        opponentScore={match.opponentScore}
+        total={match.questions.length}
+        results={match.results}
+        totalPwen={match.totalPwen}
+        settled={match.settled}
+        onReplay={handleReplay}
+      />
+    );
+  }
+
+  // Tabbed views (home, lidè, boutik, profil)
+  let content;
+  if (tab === 'home') {
+    content = (
+      <HomeScreen
+        onStart={startMatch}
+        onAbout={handleAbout}
+        user={user}
+        isGuest={isGuest}
+        onSignIn={goToLogin}
+        onSignOut={handleSignOut}
+      />
+    );
+  } else if (tab === 'lide') {
+    content = (
+      <ComingSoonScreen
+        icon="🏆"
+        title="LIDÈ"
+        phase="Phase 4"
+        blurb="Klasman Mondyal · Zanmi · Ayiti — ap vini pou ou wè kiyès ki chanpyon semèn nan."
+      />
+    );
+  } else if (tab === 'boutik') {
+    content = (
+      <ComingSoonScreen
+        icon="🛍️"
+        title="BOUTIK"
+        phase="Phase 6b"
+        blurb="Pouwa (50-50, Sote Kesyon, Tan Siplemantè, Double Pwen), packs, ak aparans."
+      />
+    );
+  } else if (tab === 'profil') {
+    content = (
+      <ProfileScreen
+        user={user}
+        isGuest={isGuest}
+        onSignIn={goToLogin}
+        onSignOut={handleSignOut}
+        refreshKey={statsRefresh}
+      />
+    );
+  }
+
   return (
-    <ResultScreen
-      playerScore={playerScore}
-      opponent={match.opponent}
-      opponentScore={match.opponentScore}
-      total={match.questions.length}
-      results={match.results}
-      totalPwen={match.totalPwen}
-      onReplay={handleReplay}
-    />
+    <>
+      {content}
+      <TabBar active={tab} onChange={setTab} />
+    </>
   );
 }

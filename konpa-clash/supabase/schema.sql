@@ -241,4 +241,89 @@ insert into shop_items (key, name_kreyol, description_kreyol, category, cost_coi
   ('double_points', 'Double Pwen',     'Double pwen pwochèn kesyon an',      'pouwa', 200, 'x2')
 on conflict (key) do nothing;
 
+-- ------------------------------------
+-- 6. RPC: complete_match  (Phase 3)
+-- Awards W/L/D + coins + XP + streak + badges in one transaction.
+-- Client-controlled scores for now; Phase 5 will replace this with an
+-- async-match resolver that reads scores from match_plays server-side.
+-- ------------------------------------
+
+create or replace function public.complete_match(
+  p_player_score int,
+  p_opponent_score int,
+  p_correct_count int,
+  p_total int
+)
+returns table (
+  wins int, losses int, draws int,
+  win_streak int, best_win_streak int,
+  matches_played int, coins int, xp int,
+  new_badges text[]
+)
+language plpgsql security definer set search_path = public
+as $$
+declare
+  uid uuid := auth.uid();
+  won boolean := p_player_score > p_opponent_score;
+  is_draw boolean := p_player_score = p_opponent_score;
+  coins_earned int := p_correct_count * 100;
+  xp_earned int := p_correct_count * 50 + (case when won then 200 when is_draw then 100 else 0 end);
+  prev_wins int; prev_streak int; prev_best int;
+  new_row stats%rowtype;
+  earned text[] := array[]::text[];
+begin
+  if uid is null then
+    raise exception 'Not signed in';
+  end if;
+
+  insert into stats (user_id) values (uid) on conflict (user_id) do nothing;
+  select wins, win_streak, best_win_streak
+    into prev_wins, prev_streak, prev_best
+    from stats where user_id = uid;
+
+  update stats set
+    wins = wins + case when won then 1 else 0 end,
+    losses = losses + case when not won and not is_draw then 1 else 0 end,
+    draws = draws + case when is_draw then 1 else 0 end,
+    win_streak = case when won then win_streak + 1 else 0 end,
+    best_win_streak = greatest(best_win_streak, case when won then win_streak + 1 else best_win_streak end),
+    matches_played = matches_played + 1,
+    coins = coins + coins_earned,
+    xp = xp + xp_earned,
+    updated_at = now()
+  where user_id = uid
+  returning * into new_row;
+
+  -- Badge awards (idempotent via unique index on badges)
+  if new_row.wins >= 1 and prev_wins < 1 then
+    insert into badges (user_id, badge_key) values (uid, 'first_win') on conflict do nothing;
+    earned := earned || 'first_win';
+  end if;
+  if new_row.wins >= 10 and prev_wins < 10 then
+    insert into badges (user_id, badge_key) values (uid, 'ten_wins') on conflict do nothing;
+    earned := earned || 'ten_wins';
+  end if;
+  if new_row.wins >= 100 and prev_wins < 100 then
+    insert into badges (user_id, badge_key) values (uid, 'hundred_wins') on conflict do nothing;
+    earned := earned || 'hundred_wins';
+  end if;
+  if new_row.best_win_streak >= 5 and prev_best < 5 then
+    insert into badges (user_id, badge_key) values (uid, 'streak_5') on conflict do nothing;
+    earned := earned || 'streak_5';
+  end if;
+  if new_row.best_win_streak >= 10 and prev_best < 10 then
+    insert into badges (user_id, badge_key) values (uid, 'streak_10') on conflict do nothing;
+    earned := earned || 'streak_10';
+  end if;
+
+  return query select
+    new_row.wins, new_row.losses, new_row.draws,
+    new_row.win_streak, new_row.best_win_streak,
+    new_row.matches_played, new_row.coins, new_row.xp,
+    earned;
+end;
+$$;
+
+grant execute on function public.complete_match(int, int, int, int) to authenticated;
+
 -- Done. If you see "Success. No rows returned" that means everything ran.
