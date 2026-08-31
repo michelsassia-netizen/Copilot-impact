@@ -93,6 +93,204 @@ a:focus-visible {
 }
 
 /* ======================
+ * LOGIN (light / cream)
+ * ====================== */
+.login {
+  position: relative;
+  z-index: 1;
+  padding: 26px 22px 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.login-hero {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.login-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 32px;
+  color: var(--navy);
+  text-align: center;
+  letter-spacing: -0.5px;
+  margin: 4px 0 8px;
+  line-height: 1.05;
+}
+.login-sub {
+  text-align: center;
+  color: var(--muted-cream);
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+.login-sub strong { color: var(--navy); }
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.login-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(15, 27, 61, 0.15);
+  background: var(--paper-tint);
+  color: var(--navy);
+  font-family: var(--font-body);
+  font-size: 16px;
+  transition: border-color 0.15s ease;
+}
+.login-input:focus {
+  outline: none;
+  border-color: var(--navy);
+}
+.login-error {
+  font-size: 13px;
+  color: var(--red);
+  margin-top: -4px;
+}
+
+.login-sent {
+  text-align: center;
+  padding: 24px 8px;
+  border: 2px dashed rgba(15, 27, 61, 0.2);
+  border-radius: var(--radius);
+  background: var(--paper-tint);
+  margin-bottom: 8px;
+}
+.login-emoji { font-size: 44px; margin-bottom: 8px; }
+.login-sent-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 22px;
+  color: var(--navy);
+  margin-bottom: 8px;
+}
+.login-note {
+  color: var(--muted-cream);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 12px;
+  color: var(--muted-cream);
+  font-family: var(--font-label);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(15, 27, 61, 0.15);
+}
+.login-guest-note {
+  color: var(--muted-cream);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Loading splash */
+.splash-loading {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.splash-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #fff2b3, var(--gold) 55%, var(--gold-deep));
+  animation: splash-pulse 1.1s ease-in-out infinite;
+}
+@keyframes splash-pulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+/* Guest banner */
+.guest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  background: linear-gradient(180deg, rgba(232, 183, 74, 0.2), rgba(232, 183, 74, 0.06));
+  border: 1px solid rgba(232, 183, 74, 0.5);
+  border-radius: 12px;
+}
+.guest-banner-msg {
+  font-family: var(--font-label);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--navy);
+}
+.guest-banner-btn {
+  font-family: var(--font-label);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+}
+
+/* User chip (top-right when signed in) */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 999px;
+  background: var(--paper-tint);
+  border: 1px solid rgba(15, 27, 61, 0.15);
+  color: var(--navy);
+  max-width: 220px;
+}
+.user-chip-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+  color: #2b1c00;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-label);
+  font-weight: 800;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.user-chip-email {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--muted-cream);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ======================
  * HOME (light / cream)
  * ====================== */
 .home {

@@ -1,22 +1,26 @@
-// Screen A — Home / Splash (light cream)
-// Flag roundel, gold tanbou + rays, KONPA CLASH wordmark, tagline,
-// placeholder image slot (per spec: DO NOT ship a final-looking couple
-// illustration; leave a labeled placeholder for Sassia's real artwork),
-// primary "JWE KOUNYE A" button, secondary "APRANN PLIS",
-// navy+red bottom wave, sponsor band footer.
+// Screen A — Home / Splash (cream)
+// Adds a small guest nudge banner + user chip when signed in / guest.
 
 import { TanbouRays } from './TanbouRays.jsx';
 import { BottomWave } from './BottomWave.jsx';
 import { SponsorBand } from './SponsorBand.jsx';
+import { GuestBanner } from './GuestBanner.jsx';
+import { UserChip } from './UserChip.jsx';
 
-export function HomeScreen({ onStart, onAbout }) {
+export function HomeScreen({ onStart, onAbout, user, isGuest, onSignIn, onSignOut }) {
   return (
     <div className="app surface-light">
       <div className="home">
         <div className="home-top">
           <div className="flag-roundel" aria-label="Ayiti">🇭🇹</div>
-          <button className="home-menu" type="button" aria-label="Meni">☰</button>
+          {user ? (
+            <UserChip user={user} onSignOut={onSignOut} />
+          ) : (
+            <button className="home-menu" type="button" aria-label="Meni">☰</button>
+          )}
         </div>
+
+        {isGuest && <GuestBanner onSignIn={onSignIn} />}
 
         <div className="home-hero">
           <TanbouRays />
